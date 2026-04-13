@@ -4,42 +4,42 @@ const assignmentSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   course: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: true
+    required: true,
   },
   dueDate: {
     type: Date,
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   status: {
     type: String,
     enum: ['draft', 'published', 'closed'],
-    default: 'draft'
+    default: 'draft',
   },
   maxScore: {
     type: Number,
-    default: 100
-  }
+    default: 100,
+  },
 });
 
 // Update the updatedAt field on save
-assignmentSchema.pre('save', function(next) {
+assignmentSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

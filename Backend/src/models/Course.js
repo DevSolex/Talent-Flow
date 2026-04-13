@@ -4,33 +4,33 @@ const courseSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   status: {
     type: String,
     enum: ['draft', 'published', 'archived'],
-    default: 'draft'
-  }
+    default: 'draft',
+  },
 });
 
-courseSchema.pre('save', function(next) {
+courseSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
