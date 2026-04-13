@@ -10,7 +10,7 @@ router.get('/student/:studentId', async (req, res) => {
     const progress = await Progress.find({ student: req.params.studentId })
       .populate('assignment', 'title description course dueDate maxScore')
       .populate('assignment.course', 'title');
-    
+
     res.json(progress);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -24,7 +24,7 @@ router.get('/assignment/:assignmentId', async (req, res) => {
     const progress = await Progress.find({ assignment: req.params.assignmentId })
       .populate('student', 'name email')
       .populate('assignment', 'title description maxScore');
-    
+
     res.json(progress);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -35,17 +35,17 @@ router.get('/assignment/:assignmentId', async (req, res) => {
 // @desc    Get specific progress record for a student on an assignment
 router.get('/student/:studentId/assignment/:assignmentId', async (req, res) => {
   try {
-    const progress = await Progress.findOne({ 
-      student: req.params.studentId, 
-      assignment: req.params.assignmentId 
+    const progress = await Progress.findOne({
+      student: req.params.studentId,
+      assignment: req.params.assignmentId,
     })
-    .populate('assignment', 'title description course dueDate maxScore')
-    .populate('assignment.course', 'title');
-    
+      .populate('assignment', 'title description course dueDate maxScore')
+      .populate('assignment.course', 'title');
+
     if (!progress) {
       return res.status(404).json({ message: 'Progress record not found' });
     }
-    
+
     res.json(progress);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
       score: req.body.score || null,
       feedback: req.body.feedback || '',
       completionPercentage: req.body.completionPercentage || 0,
-      timeSpent: req.body.timeSpent || 0
+      timeSpent: req.body.timeSpent || 0,
     };
 
     // Set dates based on status
@@ -88,9 +88,10 @@ router.post('/', async (req, res) => {
     const progress = await Progress.findOneAndUpdate(
       { student: req.body.student, assignment: req.body.assignment },
       progressData,
-      { new: true, upsert: true, runValidators: true }
-    ).populate('assignment', 'title description course maxScore')
-     .populate('assignment.course', 'title');
+      { new: true, upsert: true, runValidators: true },
+    )
+      .populate('assignment', 'title description course maxScore')
+      .populate('assignment.course', 'title');
 
     res.status(201).json(progress);
   } catch (error) {
@@ -103,7 +104,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const updateData = { ...req.body };
-    
+
     // Handle status changes and set appropriate dates
     if (req.body.status === 'in_progress' && !req.body.startedAt) {
       updateData.startedAt = Date.now();
@@ -115,12 +116,12 @@ router.put('/:id', async (req, res) => {
       updateData.gradedDate = Date.now();
     }
 
-    const progress = await Progress.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate('assignment', 'title description course maxScore')
-     .populate('assignment.course', 'title');
+    const progress = await Progress.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    })
+      .populate('assignment', 'title description course maxScore')
+      .populate('assignment.course', 'title');
 
     if (!progress) {
       return res.status(404).json({ message: 'Progress record not found' });
@@ -137,7 +138,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const progress = await Progress.findByIdAndDelete(req.params.id);
-    
+
     if (!progress) {
       return res.status(404).json({ message: 'Progress record not found' });
     }

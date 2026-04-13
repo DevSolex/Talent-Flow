@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
     const course = new Course({
       title: req.body.title,
       description: req.body.description,
-      instructor: req.body.instructor
+      instructor: req.body.instructor,
     });
 
     const savedCourse = await course.save();

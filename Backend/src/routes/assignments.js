@@ -10,9 +10,9 @@ router.get('/', (req, res) => {
 // @route   GET /api/assignments/:courseId
 // @desc    Get assignments by course ID
 router.get('/course/:courseId', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'GET assignments by course - endpoint working!',
-    courseId: req.params.courseId 
+    courseId: req.params.courseId,
   });
 });
 
@@ -25,18 +25,18 @@ router.post('/', (req, res) => {
 // @route   PUT /api/assignments/:id
 // @desc    Update assignment
 router.put('/:id', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'PUT update assignment - endpoint working!',
-    assignmentId: req.params.id 
+    assignmentId: req.params.id,
   });
 });
 
 // @route   DELETE /api/assignments/:id
 // @desc    Delete assignment
 router.delete('/:id', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'DELETE assignment - endpoint working!',
-    assignmentId: req.params.id 
+    assignmentId: req.params.id,
   });
 });
 
