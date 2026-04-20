@@ -1,0 +1,78 @@
+
+ .container1 {
+  max-width: 350px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+} 
+
+/* Card Section */
+.card {
+  padding: 20px;
+}
+
+.card h2 {
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #666;
+}
+
+.card label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.card input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.verify-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  background: #0a7a3d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.verify-btn:hover {
+  background: #086b35;
+}
+
+/* Keypad */
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 15px;
+  background: #e9ecef;
+}
+
+.keypad button {
+  padding: 15px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.keypad button:hover {
+  background: #ddd;
+}
+
+.delete {
+  grid-column: span 2;
+  background: #ccc;
+}

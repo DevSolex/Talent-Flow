@@ -1,0 +1,230 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background: #f5f5f5;
+}
+
+/* CONTAINER */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+/* CARD */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* LOGO */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.logo h3 {
+  font-size: 18px;
+}
+
+.logo span {
+  color: #0b7a3b;
+}
+
+.logo-icon {
+  font-size: 22px;
+}
+
+/* TEXT */
+h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+/* INPUT */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 12px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* PASSWORD */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* PASSWORD OPTIONS */
+.password-options {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-top: 8px;
+}
+
+
+.remember {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.remember input {
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.forgot {
+  font-size: 11px;
+  color: #0b7a3b;
+  cursor: pointer;
+}
+
+/* BUTTON */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #0b7a3b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* DIVIDER */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 18px 0;
+}
+
+.divider span {
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider p {
+  margin: 0 8px;
+  font-size: 11px;
+  color: #777;
+}
+
+/* SOCIAL */
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.socials button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* SIGNUP */
+.signup {
+  text-align: center;
+  font-size: 11px;
+  margin-top: 15px;
+}
+
+.signup span {
+  color: #0b7a3b;
+  font-weight: bold;
+}
+
+/* ========================= */
+/* 📱 EXTRA SMALL DEVICES */
+/* ========================= */
+@media (max-width: 360px) {
+  .card {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .login-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* ========================= */
+/* 📱 SMALL PHONES */
+/* ========================= */
+@media (min-width: 361px) and (max-width: 480px) {
+  .card {
+    padding: 18px;
+  }
+}
+
+/* ========================= */
+/* 📲 TABLETS */
+/* ========================= */
+@media (min-width: 481px) and (max-width: 768px) {
+  .card {
+    max-width: 450px;
+    padding: 25px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+}
+
+/* ========================= */
+/* 💻 DESKTOP */
+/* ========================= */
+@media (min-width: 769px) {
+  .card {
+    max-width: 420px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+}

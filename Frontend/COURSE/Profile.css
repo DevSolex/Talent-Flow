@@ -1,0 +1,100 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
+
+.profile-container {
+  max-width: 360px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Title */
+.title {
+  margin-bottom: 20px;
+}
+
+/* Profile Header */
+.profile-header {
+  text-align: center;
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+
+.add-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #0a7a3d;
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  font-size: 12px;
+}
+
+/* Menu */
+.menu {
+  margin-top: 20px;
+}
+
+.menu-item {
+  background: #e6e6e6;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #dcdcdc;
+}
+
+.arrow {
+  font-size: 18px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  background: #fff;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.nav-item {
+  text-align: center;
+  font-size: 14px;
+}
+
+.nav-item p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.active {
+  font-weight: bold;
+}
+
+.user {
+  color: green;
+}
