@@ -18,8 +18,13 @@ const Register = () => {
     setError('');
     setLoading(true);
     try {
-      await register(form);
-      navigate('/login');
+      const res = await register(form);
+      if (form.roleName === 'Mentor') {
+        alert(res.data.message); // "pending admin approval"
+        navigate('/login');
+      } else {
+        navigate('/login');
+      }
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || 'Registration failed';
       setError(msg);

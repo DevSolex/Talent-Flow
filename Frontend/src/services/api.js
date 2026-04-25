@@ -38,7 +38,10 @@ export const submitAssignment = (id, data) => api.post(`/assignments/${id}/submi
 export const gradeAssignment = (id, data) => api.post(`/assignments/${id}/grade`, data);
 export const deleteAssignment = (id) => api.delete(`/assignments/${id}`);
 
-// Progress
-export const getStudentProgress = (studentId) => api.get(`/progress/student/${studentId}`);
+// Notifications
+export const getNotifications = () => api.get('/notifications');
+export const markNotificationRead = (id) => api.put(`/notifications/${id}/read`);
+export const approveMentor = (userId) => api.post(`/notifications/approve/${userId}`);
+export const rejectMentor = (userId) => api.post(`/notifications/reject/${userId}`);
 
 export default api;

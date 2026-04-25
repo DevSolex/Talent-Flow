@@ -47,6 +47,7 @@ app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/enrollments', require('./routes/enrollmentRoutes'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/api/progress', require('./routes/progress'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
