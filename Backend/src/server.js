@@ -14,8 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const setupSwagger = require('./utils/swagger');
-setupSwagger(app);
+
 
 mongoose
   .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/talentflow')
