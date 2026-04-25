@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   getCourse, getCourseAssignments, enroll, getUserEnrollments,
-  submitAssignment, gradeAssignment, createAssignment, deleteAssignment
+  submitAssignment, gradeAssignment, createAssignment, deleteAssignment,
+  getStudentProgress, getAssignmentSubmissions
 } from '../services/api';
 import BottomNav from '../components/BottomNav';
 import './CourseDetail.css';
@@ -23,16 +24,34 @@ const CourseDetail = () => {
   const [assignForm, setAssignForm] = useState({ title: '', description: '', dueDate: '', maxScore: 100 });
   const [gradeData, setGradeData] = useState({});
   const [answers, setAnswers] = useState({});
+  const [myProgress, setMyProgress] = useState({}); // assignmentId -> progress record
+  const [submissions, setSubmissions] = useState({}); // assignmentId -> submissions[]
 
   useEffect(() => {
     Promise.all([
       getCourse(id),
       getCourseAssignments(id),
       getUserEnrollments(user._id || user.id),
-    ]).then(([c, a, e]) => {
+    ]).then(async ([c, a, e]) => {
       setCourse(c.data);
       setAssignments(a.data);
       setEnrolled(e.data.some((en) => (en.course?._id || en.course) === id));
+
+      if (role === 'Intern') {
+        const prog = await getStudentProgress(user._id || user.id);
+        const map = {};
+        (prog.data || []).forEach((p) => { map[p.assignment?._id || p.assignment] = p; });
+        setMyProgress(map);
+      }
+
+      if (role === 'Mentor' || role === 'Admin') {
+        const subMap = {};
+        await Promise.all(a.data.map(async (assign) => {
+          const s = await getAssignmentSubmissions(assign._id);
+          subMap[assign._id] = s.data;
+        }));
+        setSubmissions(subMap);
+      }
     }).catch(() => navigate('/dashboard'))
       .finally(() => setLoading(false));
   }, [id, user, navigate]);
@@ -50,20 +69,23 @@ const CourseDetail = () => {
     const answer = answers[assignId]?.trim();
     if (!answer) return setError('Please write your answer before submitting.');
     try {
-      await submitAssignment(assignId, { answer });
-      alert('Assignment submitted!');
+      const res = await submitAssignment(assignId, { answer });
+      setMyProgress({ ...myProgress, [assignId]: res.data });
       setAnswers({ ...answers, [assignId]: '' });
     } catch (err) {
       setError(err.response?.data?.message || 'Submission failed');
     }
   };
 
-  const handleGrade = async (assignId) => {
-    const data = gradeData[assignId];
-    if (!data?.studentId || !data?.score) return alert('Fill student ID and score');
+  const handleGrade = async (assignId, studentId) => {
+    const data = gradeData[`${assignId}_${studentId}`];
+    if (!data?.score) return alert('Enter a score');
     try {
-      await gradeAssignment(assignId, data);
-      alert('Graded!');
+      await gradeAssignment(assignId, { studentId, score: data.score, feedback: data.feedback || '' });
+      // refresh submissions
+      const s = await getAssignmentSubmissions(assignId);
+      setSubmissions({ ...submissions, [assignId]: s.data });
+      setGradeData({ ...gradeData, [`${assignId}_${studentId}`]: {} });
     } catch (err) {
       setError(err.response?.data?.message || 'Grading failed');
     }
@@ -163,30 +185,56 @@ const CourseDetail = () => {
                 <p className="item-sub">{a.description}</p>
                 {a.dueDate && <p className="item-sub">Due: {new Date(a.dueDate).toLocaleDateString()}</p>}
               </div>
-              {role === 'Intern' && enrolled && (
-                <div className="answer-section">
-                  <textarea
-                    placeholder="Write your answer here..."
-                    value={answers[a._id] || ''}
-                    onChange={(e) => setAnswers({ ...answers, [a._id]: e.target.value })}
-                    rows={4}
-                    style={{ width: '100%', marginBottom: 8, padding: 8, borderRadius: 6, border: '1px solid #ddd', resize: 'vertical' }}
-                  />
-                  <button
-                    className="btn-outline"
-                    onClick={() => handleSubmit(a._id)}
-                    disabled={!answers[a._id]?.trim()}
-                  >Submit</button>
-                </div>
-              )}
+              {role === 'Intern' && enrolled && (() => {
+                const prog = myProgress[a._id];
+                if (prog && ['submitted', 'graded'].includes(prog.status)) {
+                  return (
+                    <div style={{ marginTop: 8, padding: 10, background: '#f0fdf4', borderRadius: 8 }}>
+                      <p style={{ margin: 0, fontWeight: 600, color: prog.status === 'graded' ? '#22c55e' : '#3b82f6' }}>
+                        {prog.status === 'graded' ? `✅ Graded: ${prog.score}/${prog.maxScore}` : '⏳ Submitted — awaiting grade'}
+                      </p>
+                      {prog.feedback && <p style={{ margin: '4px 0 0', fontSize: 13 }}>Feedback: {prog.feedback}</p>}
+                    </div>
+                  );
+                }
+                return (
+                  <div className="answer-section">
+                    <textarea
+                      placeholder="Write your answer here..."
+                      value={answers[a._id] || ''}
+                      onChange={(e) => setAnswers({ ...answers, [a._id]: e.target.value })}
+                      rows={4}
+                      style={{ width: '100%', marginBottom: 8, padding: 8, borderRadius: 6, border: '1px solid #ddd', resize: 'vertical' }}
+                    />
+                    <button className="btn-outline" onClick={() => handleSubmit(a._id)} disabled={!answers[a._id]?.trim()}>
+                      Submit
+                    </button>
+                  </div>
+                );
+              })()}
               {(role === 'Mentor' || role === 'Admin') && (
                 <div className="grade-section">
-                  <input placeholder="Student ID" onChange={(e) => setGradeData({ ...gradeData, [a._id]: { ...gradeData[a._id], studentId: e.target.value } })} />
-                  <input type="number" placeholder="Score" onChange={(e) => setGradeData({ ...gradeData, [a._id]: { ...gradeData[a._id], score: e.target.value } })} />
-                  <input placeholder="Feedback" onChange={(e) => setGradeData({ ...gradeData, [a._id]: { ...gradeData[a._id], feedback: e.target.value } })} />
-                  <button className="btn-outline" onClick={() => handleGrade(a._id)}>Grade</button>
+                  {(submissions[a._id] || []).length === 0 ? (
+                    <p style={{ fontSize: 13, color: '#aaa' }}>No submissions yet.</p>
+                  ) : (submissions[a._id] || []).map((sub) => (
+                    <div key={sub._id} style={{ borderTop: '1px solid #eee', paddingTop: 10, marginTop: 10 }}>
+                      <p style={{ margin: 0, fontWeight: 600 }}>{sub.student?.name}</p>
+                      <p style={{ margin: '4px 0', fontSize: 13, color: '#555' }}>{sub.answer}</p>
+                      {sub.status === 'graded' ? (
+                        <p style={{ color: '#22c55e', fontSize: 13 }}>✅ Graded: {sub.score}/{sub.maxScore} — {sub.feedback}</p>
+                      ) : (
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+                          <input type="number" placeholder="Score" style={{ width: 80, padding: '4px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                            onChange={(e) => setGradeData({ ...gradeData, [`${a._id}_${sub.student?._id}`]: { ...gradeData[`${a._id}_${sub.student?._id}`], score: e.target.value } })} />
+                          <input placeholder="Feedback" style={{ flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                            onChange={(e) => setGradeData({ ...gradeData, [`${a._id}_${sub.student?._id}`]: { ...gradeData[`${a._id}_${sub.student?._id}`], feedback: e.target.value } })} />
+                          <button className="btn-outline" onClick={() => handleGrade(a._id, sub.student?._id)}>Grade</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                   {role === 'Admin' && (
-                    <button className="btn-delete" onClick={() => handleDeleteAssignment(a._id)}>Delete</button>
+                    <button className="btn-delete" style={{ marginTop: 10 }} onClick={() => handleDeleteAssignment(a._id)}>Delete Assignment</button>
                   )}
                 </div>
               )}
