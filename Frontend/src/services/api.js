@@ -20,7 +20,7 @@ export const getAllUsers = () => api.get('/users');
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 // Courses
-export const getCourses = () => api.get('/courses');
+export const getCourses = (all = false) => api.get(`/courses${all ? '?all=true' : ''}`);
 export const getCourse = (id) => api.get(`/courses/${id}`);
 export const createCourse = (data) => api.post('/courses', data);
 export const updateCourse = (id, data) => api.put(`/courses/${id}`, data);
@@ -46,5 +46,7 @@ export const getNotifications = () => api.get('/notifications');
 export const markNotificationRead = (id) => api.put(`/notifications/${id}/read`);
 export const approveMentor = (userId) => api.post(`/notifications/approve/${userId}`);
 export const rejectMentor = (userId) => api.post(`/notifications/reject/${userId}`);
+export const approveCourse = (courseId) => api.post(`/notifications/approve-course/${courseId}`);
+export const rejectCourse = (courseId) => api.post(`/notifications/reject-course/${courseId}`);
 
 export default api;

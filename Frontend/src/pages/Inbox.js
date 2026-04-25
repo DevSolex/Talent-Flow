@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   getNotifications, markNotificationRead, approveMentor, rejectMentor,
-  getStudentProgress,
+  approveCourse, rejectCourse, getStudentProgress,
 } from '../services/api';
 import BottomNav from '../components/BottomNav';
 
@@ -10,6 +10,9 @@ const typeColor = {
   mentor_request: '#f0a500',
   mentor_approved: '#22c55e',
   mentor_rejected: '#ef4444',
+  course_request: '#8b5cf6',
+  course_approved: '#22c55e',
+  course_rejected: '#ef4444',
 };
 
 const statusColor = { not_started: '#aaa', in_progress: '#f0a500', submitted: '#3b82f6', graded: '#22c55e' };
@@ -45,9 +48,12 @@ const Inbox = () => {
   };
 
   const handleApprove = async (notif) => {
-    await approveMentor(notif.meta.applicantId);
+    if (notif.type === 'course_request') {
+      await approveCourse(notif.meta.courseId);
+    } else {
+      await approveMentor(notif.meta.applicantId);
+    }
     setActioned((a) => ({ ...a, [notif._id]: 'approved' }));
-    // mark read
     if (!notif.read) {
       await markNotificationRead(notif._id);
       setNotifications((prev) => prev.map((n) => n._id === notif._id ? { ...n, read: true } : n));
@@ -56,8 +62,13 @@ const Inbox = () => {
   };
 
   const handleReject = async (notif) => {
-    if (!window.confirm(`Reject ${notif.meta?.applicantName}?`)) return;
-    await rejectMentor(notif.meta.applicantId);
+    const name = notif.type === 'course_request' ? notif.meta?.courseTitle : notif.meta?.applicantName;
+    if (!window.confirm(`Reject "${name}"?`)) return;
+    if (notif.type === 'course_request') {
+      await rejectCourse(notif.meta.courseId);
+    } else {
+      await rejectMentor(notif.meta.applicantId);
+    }
     setActioned((a) => ({ ...a, [notif._id]: 'rejected' }));
     if (!notif.read) {
       await markNotificationRead(notif._id);
@@ -97,7 +108,7 @@ const Inbox = () => {
                 {!n.read && (
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
                 )}
-                {!n.read && n.type !== 'mentor_request' && (
+                {!n.read && n.type !== 'mentor_request' && n.type !== 'course_request' && (
                   <button onClick={() => handleRead(n._id)}
                     style={{ fontSize: 11, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}>
                     Mark read
@@ -108,7 +119,7 @@ const Inbox = () => {
             <p style={{ margin: '4px 0 0', fontSize: 11, color: '#aaa' }}>{new Date(n.createdAt).toLocaleString()}</p>
 
             {/* Approve/Reject — show until actioned */}
-            {n.type === 'mentor_request' && !actioned[n._id] && (
+            {(n.type === 'mentor_request' || n.type === 'course_request') && !actioned[n._id] && (
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                 <button className="btn-primary" style={{ fontSize: 13, padding: '6px 16px' }} onClick={() => handleApprove(n)}>
                   ✓ Approve
