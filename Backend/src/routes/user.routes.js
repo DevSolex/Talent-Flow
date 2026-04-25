@@ -30,5 +30,6 @@ router.get('/profile', verifyToken, userController.getProfile);
  *         description: List of users
  */
 router.get('/', verifyToken, verifyRole(['Admin']), userController.getAllUsers);
+router.delete('/:id', verifyToken, verifyRole(['Admin']), userController.deleteUser);
 
 module.exports = router;

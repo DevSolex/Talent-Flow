@@ -17,6 +17,7 @@ export const register = (data) => api.post('/auth/register', data);
 // Users
 export const getProfile = () => api.get('/users/profile');
 export const getAllUsers = () => api.get('/users');
+export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 // Courses
 export const getCourses = () => api.get('/courses');
