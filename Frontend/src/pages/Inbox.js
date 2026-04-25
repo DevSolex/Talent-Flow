@@ -16,11 +16,13 @@ const statusColor = { not_started: '#aaa', in_progress: '#f0a500', submitted: '#
 const statusLabel = { not_started: 'Not Started', in_progress: 'In Progress', submitted: '⏳ Submitted', graded: '✅ Graded' };
 
 const Inbox = () => {
-  const { user } = useAuth();
+  const { user, setUnreadCount } = useAuth();
   const role = user?.role?.name || user?.role;
   const [notifications, setNotifications] = useState([]);
   const [progress, setProgress] = useState([]);
   const [loading, setLoading] = useState(true);
+  // track which mentor_request notifs have been actioned this session
+  const [actioned, setActioned] = useState({});
 
   useEffect(() => {
     const fetches = [getNotifications()];
@@ -29,25 +31,39 @@ const Inbox = () => {
       .then(([n, p]) => {
         setNotifications(n.data || []);
         if (p) setProgress(p.data || []);
+        const unread = (n.data || []).filter((x) => !x.read).length;
+        setUnreadCount(unread);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [user, role]);
+  }, [user, role, setUnreadCount]);
 
   const handleRead = async (id) => {
     await markNotificationRead(id);
-    setNotifications(notifications.map((n) => n._id === id ? { ...n, read: true } : n));
+    setNotifications((prev) => prev.map((n) => n._id === id ? { ...n, read: true } : n));
+    setUnreadCount((c) => Math.max(0, c - 1));
   };
 
   const handleApprove = async (notif) => {
     await approveMentor(notif.meta.applicantId);
-    setNotifications(notifications.filter((n) => n._id !== notif._id));
+    setActioned((a) => ({ ...a, [notif._id]: 'approved' }));
+    // mark read
+    if (!notif.read) {
+      await markNotificationRead(notif._id);
+      setNotifications((prev) => prev.map((n) => n._id === notif._id ? { ...n, read: true } : n));
+      setUnreadCount((c) => Math.max(0, c - 1));
+    }
   };
 
   const handleReject = async (notif) => {
-    if (!window.confirm(`Reject ${notif.meta.applicantName}?`)) return;
+    if (!window.confirm(`Reject ${notif.meta?.applicantName}?`)) return;
     await rejectMentor(notif.meta.applicantId);
-    setNotifications(notifications.filter((n) => n._id !== notif._id));
+    setActioned((a) => ({ ...a, [notif._id]: 'rejected' }));
+    if (!notif.read) {
+      await markNotificationRead(notif._id);
+      setNotifications((prev) => prev.map((n) => n._id === notif._id ? { ...n, read: true } : n));
+      setUnreadCount((c) => Math.max(0, c - 1));
+    }
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -57,12 +73,14 @@ const Inbox = () => {
   return (
     <div className="page-container">
       <h2 style={{ padding: '16px 16px 4px' }}>
-        Inbox {unread > 0 && <span style={{ fontSize: 13, background: '#ef4444', color: '#fff', borderRadius: 12, padding: '2px 8px', marginLeft: 8 }}>{unread}</span>}
+        Inbox{unread > 0 && (
+          <span style={{ fontSize: 13, background: '#ef4444', color: '#fff',
+            borderRadius: 12, padding: '2px 8px', marginLeft: 8 }}>{unread} unread</span>
+        )}
       </h2>
 
       <div style={{ padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-        {/* Notifications for all roles */}
         {notifications.length === 0 && progress.length === 0 && (
           <p style={{ color: '#888', marginTop: 16 }}>No messages yet.</p>
         )}
@@ -75,17 +93,22 @@ const Inbox = () => {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
               <p style={{ margin: 0, fontSize: 14, flex: 1 }}>{n.message}</p>
-              {!n.read && (
-                <button onClick={() => handleRead(n._id)}
-                  style={{ fontSize: 11, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  Mark read
-                </button>
-              )}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                {!n.read && (
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                )}
+                {!n.read && n.type !== 'mentor_request' && (
+                  <button onClick={() => handleRead(n._id)}
+                    style={{ fontSize: 11, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Mark read
+                  </button>
+                )}
+              </div>
             </div>
             <p style={{ margin: '4px 0 0', fontSize: 11, color: '#aaa' }}>{new Date(n.createdAt).toLocaleString()}</p>
 
-            {/* Admin approve/reject buttons for pending mentor requests */}
-            {n.type === 'mentor_request' && !n.read && (
+            {/* Approve/Reject — show until actioned */}
+            {n.type === 'mentor_request' && !actioned[n._id] && (
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                 <button className="btn-primary" style={{ fontSize: 13, padding: '6px 16px' }} onClick={() => handleApprove(n)}>
                   ✓ Approve
@@ -94,6 +117,12 @@ const Inbox = () => {
                   ✗ Reject
                 </button>
               </div>
+            )}
+            {n.type === 'mentor_request' && actioned[n._id] && (
+              <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 600,
+                color: actioned[n._id] === 'approved' ? '#22c55e' : '#ef4444' }}>
+                {actioned[n._id] === 'approved' ? '✓ Approved' : '✗ Rejected'}
+              </p>
             )}
           </div>
         ))}
