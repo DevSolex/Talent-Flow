@@ -22,6 +22,7 @@ const CourseDetail = () => {
   const [showAssignForm, setShowAssignForm] = useState(false);
   const [assignForm, setAssignForm] = useState({ title: '', description: '', dueDate: '', maxScore: 100 });
   const [gradeData, setGradeData] = useState({});
+  const [answers, setAnswers] = useState({});
 
   useEffect(() => {
     Promise.all([
@@ -46,9 +47,12 @@ const CourseDetail = () => {
   };
 
   const handleSubmit = async (assignId) => {
+    const answer = answers[assignId]?.trim();
+    if (!answer) return setError('Please write your answer before submitting.');
     try {
-      await submitAssignment(assignId);
+      await submitAssignment(assignId, { answer });
       alert('Assignment submitted!');
+      setAnswers({ ...answers, [assignId]: '' });
     } catch (err) {
       setError(err.response?.data?.message || 'Submission failed');
     }
@@ -160,7 +164,20 @@ const CourseDetail = () => {
                 {a.dueDate && <p className="item-sub">Due: {new Date(a.dueDate).toLocaleDateString()}</p>}
               </div>
               {role === 'Intern' && enrolled && (
-                <button className="btn-outline" onClick={() => handleSubmit(a._id)}>Submit</button>
+                <div className="answer-section">
+                  <textarea
+                    placeholder="Write your answer here..."
+                    value={answers[a._id] || ''}
+                    onChange={(e) => setAnswers({ ...answers, [a._id]: e.target.value })}
+                    rows={4}
+                    style={{ width: '100%', marginBottom: 8, padding: 8, borderRadius: 6, border: '1px solid #ddd', resize: 'vertical' }}
+                  />
+                  <button
+                    className="btn-outline"
+                    onClick={() => handleSubmit(a._id)}
+                    disabled={!answers[a._id]?.trim()}
+                  >Submit</button>
+                </div>
               )}
               {(role === 'Mentor' || role === 'Admin') && (
                 <div className="grade-section">

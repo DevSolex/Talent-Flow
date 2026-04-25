@@ -33,6 +33,10 @@ const progressSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  answer: {
+    type: String,
+    default: '',
+  },
   feedback: {
     type: String,
     default: '',

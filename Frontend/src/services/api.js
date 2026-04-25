@@ -33,7 +33,7 @@ export const getAllEnrollments = () => api.get('/enrollments');
 // Assignments
 export const getCourseAssignments = (courseId) => api.get(`/assignments/course/${courseId}`);
 export const createAssignment = (data) => api.post('/assignments', data);
-export const submitAssignment = (id) => api.post(`/assignments/${id}/submit`);
+export const submitAssignment = (id, data) => api.post(`/assignments/${id}/submit`, data);
 export const gradeAssignment = (id, data) => api.post(`/assignments/${id}/grade`, data);
 export const deleteAssignment = (id) => api.delete(`/assignments/${id}`);
 

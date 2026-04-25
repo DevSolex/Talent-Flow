@@ -64,6 +64,11 @@ router.delete('/:id', verifyToken, verifyRole(['Admin']), async (req, res) => {
 // POST /api/assignments/:id/submit — intern submits an assignment
 router.post('/:id/submit', verifyToken, verifyRole(['Intern']), async (req, res) => {
   try {
+    const { answer } = req.body;
+    if (!answer || !answer.trim()) {
+      return res.status(400).json({ message: 'Answer is required before submitting' });
+    }
+
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
 
@@ -72,6 +77,7 @@ router.post('/:id/submit', verifyToken, verifyRole(['Intern']), async (req, res)
       {
         student: req.user._id,
         assignment: req.params.id,
+        answer: answer.trim(),
         status: 'submitted',
         submissionDate: Date.now(),
         maxScore: assignment.maxScore,
