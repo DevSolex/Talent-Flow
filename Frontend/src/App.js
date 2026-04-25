@@ -12,6 +12,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
 import Profile from './pages/Profile';
+import Inbox from './pages/Inbox';
 
 const DashboardRedirect = () => {
   const { user } = useAuth();
@@ -35,6 +36,7 @@ const App = () => (
         <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
         <Route path="/courses/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
