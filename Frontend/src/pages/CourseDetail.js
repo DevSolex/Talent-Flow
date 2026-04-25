@@ -79,9 +79,10 @@ const CourseDetail = () => {
 
   const handleGrade = async (assignId, studentId) => {
     const data = gradeData[`${assignId}_${studentId}`];
-    if (!data?.score) return alert('Enter a score');
+    const score = Number(data?.score);
+    if (!data?.score || isNaN(score) || score < 0) return alert('Enter a valid score (0 or above)');
     try {
-      await gradeAssignment(assignId, { studentId, score: data.score, feedback: data.feedback || '' });
+      await gradeAssignment(assignId, { studentId, score, feedback: data.feedback || '' });
       // refresh submissions
       const s = await getAssignmentSubmissions(assignId);
       setSubmissions({ ...submissions, [assignId]: s.data });
@@ -224,7 +225,7 @@ const CourseDetail = () => {
                         <p style={{ color: '#22c55e', fontSize: 13 }}>✅ Graded: {sub.score}/{sub.maxScore} — {sub.feedback}</p>
                       ) : (
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
-                          <input type="number" placeholder="Score" style={{ width: 80, padding: '4px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                          <input type="number" placeholder="Score" min="0" style={{ width: 80, padding: '4px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                             onChange={(e) => setGradeData({ ...gradeData, [`${a._id}_${sub.student?._id}`]: { ...gradeData[`${a._id}_${sub.student?._id}`], score: e.target.value } })} />
                           <input placeholder="Feedback" style={{ flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                             onChange={(e) => setGradeData({ ...gradeData, [`${a._id}_${sub.student?._id}`]: { ...gradeData[`${a._id}_${sub.student?._id}`], feedback: e.target.value } })} />
